@@ -37,6 +37,23 @@ go run ./example -addr 127.0.0.1:9001 -etcd 127.0.0.1:2379
 go run ./example -addr 127.0.0.1:9002 -etcd 127.0.0.1:2379
 ```
 
+## Build Docker image
+```bash
+docker build -t lancex2214/lru_cache:latest .
+```
+
+## K8s Deploy
+Apply etcd and cache:
+```bash
+kubectl apply -f k8s/etcd.yaml
+kubectl apply -f k8s/cache.yaml
+```
+
+Optional HPA (requires metrics-server):
+```bash
+kubectl apply -f k8s/cache-hpa.yaml
+```
+
 ## Notes
 - Set `-etcd` to enable service discovery via etcd.
 - Cache expiration can be set with `-expire-ms`.

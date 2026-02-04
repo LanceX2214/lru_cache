@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lru-cache
+  labels:
+    app: lru-cache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lru-cache
+  template:
+    metadata:
+      labels:
+        app: lru-cache
+    spec:
+      containers:
+      - name: lru-cache
+        image: lancex2214/lru_cache:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: grpc
+          containerPort: 9000
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - -addr
+        - $(POD_IP):9000
+        - -svc
+        - lcache
+        - -etcd
+        - etcd:2379
+        readinessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 2
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lru-cache
+spec:
+  selector:
+    app: lru-cache
+  ports:
+  - name: grpc
+    port: 9000
+    targetPort: 9000

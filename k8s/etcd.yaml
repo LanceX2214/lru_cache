@@ -22,10 +22,14 @@ spec:
           containerPort: 2379
         - name: peer
           containerPort: 2380
+        volumeMounts:
+        - name: data
+          mountPath: /etcd-data
         command:
         - /usr/local/bin/etcd
         args:
         - --name=etcd0
+        - --data-dir=/etcd-data
         - --advertise-client-urls=http://0.0.0.0:2379
         - --listen-client-urls=http://0.0.0.0:2379
         - --initial-advertise-peer-urls=http://0.0.0.0:2380
@@ -33,6 +37,10 @@ spec:
         - --initial-cluster=etcd0=http://0.0.0.0:2380
         - --initial-cluster-state=new
         - --initial-cluster-token=etcd-cluster
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: etcd-data
 ---
 apiVersion: v1
 kind: Service
@@ -45,3 +53,14 @@ spec:
   - name: client
     port: 2379
     targetPort: 2379
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: etcd-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

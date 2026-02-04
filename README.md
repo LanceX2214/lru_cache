@@ -54,6 +54,10 @@ Optional HPA (requires metrics-server):
 kubectl apply -f k8s/cache-hpa.yaml
 ```
 
+Notes:
+- `k8s/etcd.yaml` includes a PVC (`etcd-data`) mounted at `/etcd-data`.
+- Update image name in `k8s/cache.yaml` if you use a different registry.
+
 ## Notes
 - Set `-etcd` to enable service discovery via etcd.
 - Cache expiration can be set with `-expire-ms`.
